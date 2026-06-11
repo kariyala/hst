@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HST Calculator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+  :root {
+    --bg:        #0f1117;
+    --surface:   #1a1d27;
+    --border:    #2a2e3f;
+    --accent:    #4f8ef7;
+    --remove:    #f97316;
+    --text:      #e8eaf0;
+    --muted:     #6b7280;
+    --success:   #22c55e;
+    --label-sz:  0.78rem;
+    --radius:    14px;
+    --sidebar-w: 300px;
+    --trans:     0.3s cubic-bezier(.4,0,.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    /* prevent page zoom on double-tap (iOS) */
+    touch-action: manipulation;
+  }
+
+  .micon {
+    font-family: 'Material Symbols Outlined';
+    font-weight: 300;
+    font-style: normal;
+    font-size: 1.2rem;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 100;
+  }
+  .topbar-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mode-badge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background var(--trans), color var(--trans);
+  }
+  .mode-badge.add    { background: #1e3a5f; color: var(--accent); }
+  .mode-badge.remove { background: #3b1c08; color: var(--remove); }
+
+  /* ── HAMBURGER ── */
+  .hamburger {
+    width: 40px; height: 40px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    gap: 5px;
+    background: none; border: none; cursor: pointer;
+    border-radius: 8px;
+    transition: background var(--trans);
+    padding: 6px;
+  }
+  .hamburger:hover { background: var(--border); }
+  .hamburger span {
+    display: block;
+    width: 22px; height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.25s;
+    transform-origin: center;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── OVERLAY ── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(2px);
+    z-index: 200;
+    opacity: 0; pointer-events: none;
+    transition: opacity var(--trans);
+  }
+  .overlay.show { opacity: 1; pointer-events: all; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    top: 0; right: 0;
+    width: var(--sidebar-w);
+    max-width: 88vw;
+    height: 100dvh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 300;
+    transform: translateX(100%);
+    transition: transform 0.38s cubic-bezier(.4,0,.2,1);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  .sidebar-header {
+    padding: 22px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .sidebar-section { padding: 18px 20px 0; }
+  .sidebar-section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+  .hst-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .hst-input-wrap { position: relative; flex: 1; }
+  .hst-input-wrap input {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding: 10px 36px 10px 14px;
+    outline: none;
+    transition: border-color var(--trans);
+  }
+  .hst-input-wrap input:focus { border-color: var(--accent); }
+  .hst-pct-symbol {
+    position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem; color: var(--muted);
+    pointer-events: none; font-weight: 700;
+  }
+  .hst-note { font-size: 0.72rem; color: var(--muted); margin-bottom: 16px; }
+
+  .mode-toggle-wrap {
+    margin: 0 20px;
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  .mode-toggle-label {
+    font-size: 0.7rem; font-weight: 700;
+    color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.1em; margin-bottom: 10px;
+  }
+  .toggle-btn {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    transition: background var(--trans), border-color var(--trans), color var(--trans);
+    text-align: left;
+  }
+  .toggle-btn:hover { background: var(--border); }
+  .toggle-btn.active-remove { border-color: var(--remove); background: rgba(249,115,22,0.1); color: var(--remove); }
+  .toggle-btn.active-add    { border-color: var(--accent); background: rgba(79,142,247,0.1);  color: var(--accent); }
+  .toggle-btn .micon { font-size: 1.15rem; }
+  .toggle-btn.active-remove .micon { color: var(--remove); }
+  .toggle-btn.active-add    .micon { color: var(--accent); }
+
+  .clear-wrap {
+    margin: 0 20px 24px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .clear-btn {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1.5px solid #3f2121;
+    background: rgba(239,68,68,0.07);
+    color: #f87171;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    transition: background var(--trans), border-color var(--trans);
+    text-align: left;
+  }
+  .clear-btn:hover { background: rgba(239,68,68,0.16); border-color: #f87171; }
+  .clear-btn .micon { font-size: 1.15rem; color: #f87171; }
+
+  .sidebar-spacer { flex: 1; }
+
+  /* ── MAIN ── */
+  main {
+    margin-top: 56px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px 16px 0;
+    gap: 14px;
+  }
+
+  /* ── CARD ── */
+  .calc-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color var(--trans);
+  }
+  .calc-card.focused     { border-color: var(--accent); }
+  .calc-card.output-card { border-color: var(--border); }
+
+  .card-label {
+    font-size: var(--label-sz);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card-label .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    transition: background var(--trans);
+    flex-shrink: 0;
+  }
+  .remove-mode .card-label .dot { background: var(--remove); }
+
+  /* ── POS INPUT — text field, styled to look like the old number field ── */
+  .amount-input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 2.6rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    width: 100%;
+    padding: 2px 0;
+    caret-color: transparent; /* caret hidden; we manage display ourselves */
+    letter-spacing: -0.02em;
+    cursor: text;
+    /* hide number spinners if browser still shows them */
+    -moz-appearance: textfield;
+  }
+  .amount-input::placeholder { color: var(--border); }
+  /* suppress iOS selection handles / magnifier on long-press */
+  .amount-input { -webkit-user-select: none; user-select: none; }
+
+  .currency-hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  /* ── ARROW DIVIDER ── */
+  .arrow-divider {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    cursor: default;
+  }
+  .arrow-icon {
+    font-size: 1.3rem;
+    transition: color var(--trans), transform var(--trans);
+  }
+  .remove-mode .arrow-icon { color: var(--remove); transform: scaleY(-1); }
+  .add-mode    .arrow-icon { color: var(--accent); }
+
+  /* ── OUTPUT ── */
+  .output-amount {
+    font-size: 2.6rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    min-height: 3rem;
+    display: flex; align-items: center;
+    transition: color var(--trans);
+    color: var(--success);
+  }
+  .output-amount.empty { color: var(--border); }
+
+  .output-breakdown {
+    font-size: 0.75rem;
+    color: var(--muted);
+    min-height: 1rem;
+  }
+
+  /* ── DOUBLE-TAP CLEAR ZONE ── */
+  .double-tap-zone {
+    flex: 1;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 18px;
+    gap: 6px;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .tap-hint {
+    font-size: 0.65rem;
+    color: var(--border);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+    pointer-events: none;
+  }
+  .tap-hint .micon { font-size: 0.85rem; }
+
+  /* ripple that appears on double-tap */
+  .clear-ripple {
+    position: fixed;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.25);
+    transform: scale(0);
+    pointer-events: none;
+    z-index: 50;
+  }
+  @keyframes ripple-expand {
+    0%   { transform: scale(0); opacity: 1; }
+    100% { transform: scale(6); opacity: 0; }
+  }
+  .clear-ripple.go {
+    animation: ripple-expand 0.45s ease-out forwards;
+  }
+
+  /* flash-shake on clear */
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-6px); }
+    40%     { transform: translateX(6px); }
+    60%     { transform: translateX(-4px); }
+    80%     { transform: translateX(4px); }
+  }
+  .shake { animation: shake 0.35s ease; }
+
+  /* ── FLASH animation ── */
+  @keyframes flash-in {
+    0%   { opacity: 0; transform: translateY(4px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .flash { animation: flash-in 0.18s ease-out forwards; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-title">
+    <span>HST Calc</span>
+    <span class="mode-badge add" id="modeBadge">Add HST</span>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="overlay" id="overlay"></div>
+
+<nav class="sidebar" id="sidebar" aria-label="Settings">
+  <div class="sidebar-header">Settings</div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Change HST Rate</div>
+    <div class="hst-row">
+      <div class="hst-input-wrap">
+        <input type="number" id="hstRateInput" value="13" min="0" max="99" step="0.1"
+               inputmode="decimal" aria-label="HST rate percent" />
+        <span class="hst-pct-symbol">%</span>
+      </div>
+    </div>
+    <div class="hst-note">Resets to 13% on page reload.</div>
+  </div>
+
+  <div class="mode-toggle-wrap">
+    <div class="mode-toggle-label">Mode</div>
+    <button class="toggle-btn active-add" id="modeToggleBtn" aria-pressed="false">
+      <span class="micon" id="modeIcon">swap_horiz</span>
+      <span id="modeToggleText">Switch to Remove HST</span>
+    </button>
+  </div>
+
+  <div class="clear-wrap">
+    <button class="clear-btn" id="clearBtn">
+      <span class="micon">delete_sweep</span>
+      Clear All
+    </button>
+  </div>
+
+  <div class="sidebar-spacer"></div>
+</nav>
+
+<main id="mainArea" class="add-mode">
+
+  <!-- Input Card -->
+  <div class="calc-card" id="inputCard">
+    <div class="card-label"><span class="dot"></span><span id="inputLabel">Enter Amount :</span></div>
+    <!--
+      POS-style: type="text" + inputmode="numeric" so only number pad appears.
+      We intercept keydown/input to build the cents-based value ourselves.
+    -->
+    <input
+      type="text"
+      class="amount-input"
+      id="amountInput"
+      placeholder="0.00"
+      inputmode="numeric"
+      autocomplete="off"
+      aria-label="Enter amount"
+      readonly
+    />
+    <div class="currency-hint">CAD &bull; Tap to enter &bull; digits auto-place decimal</div>
+  </div>
+
+  <!-- Arrow -->
+  <div class="arrow-divider" id="arrowDivider">
+    <span class="arrow-icon">↓</span>
+    <span id="arrowLabel">+ 13% HST</span>
+  </div>
+
+  <!-- Output Card -->
+  <div class="calc-card output-card">
+    <div class="card-label"><span class="dot"></span><span id="outputLabel">Final Amount with HST :</span></div>
+    <div class="output-amount empty" id="outputAmount" aria-live="polite">—</div>
+    <div class="output-breakdown" id="outputBreakdown"></div>
+  </div>
+
+  <!-- Double-tap clear zone (bottom half of remaining space) -->
+  <div class="double-tap-zone" id="doubleTapZone">
+    <div class="tap-hint">
+      <span class="micon">touch_app</span>
+      double-tap to clear
+    </div>
+  </div>
+
+</main>
+
+<!-- Ripple element (appended to body) -->
+<div class="clear-ripple" id="clearRipple"></div>
+
+<!-- Hidden real input to trigger keyboard -->
+<input type="tel" id="keyboardProxy"
+  style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px;left:-9999px;"
+  inputmode="numeric" autocomplete="off" />
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let hstRate    = 13;
+let removeMode = false;
+
+// POS input state: store raw digits as integer cents string, max 8 digits (999999.99)
+let rawDigits = ''; // e.g. '3695' → 36.95
+
+/* ═══════════════════════════════════════════════════════════
+   ELEMENTS
+═══════════════════════════════════════════════════════════ */
+const hamburger      = document.getElementById('hamburger');
+const overlay        = document.getElementById('overlay');
+const sidebar        = document.getElementById('sidebar');
+const hstRateInput   = document.getElementById('hstRateInput');
+const modeToggleBtn  = document.getElementById('modeToggleBtn');
+const modeToggleText = document.getElementById('modeToggleText');
+const modeIcon       = document.getElementById('modeIcon');
+const clearBtn       = document.getElementById('clearBtn');
+const amountInput    = document.getElementById('amountInput');
+const keyboardProxy  = document.getElementById('keyboardProxy');
+const outputAmount   = document.getElementById('outputAmount');
+const outputBreakdown= document.getElementById('outputBreakdown');
+const modeBadge      = document.getElementById('modeBadge');
+const arrowLabel     = document.getElementById('arrowLabel');
+const inputLabel     = document.getElementById('inputLabel');
+const outputLabel    = document.getElementById('outputLabel');
+const mainArea       = document.getElementById('mainArea');
+const inputCard      = document.getElementById('inputCard');
+const doubleTapZone  = document.getElementById('doubleTapZone');
+const arrowDivider   = document.getElementById('arrowDivider');
+const clearRipple    = document.getElementById('clearRipple');
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════════════════════ */
+function openSidebar() {
+  sidebar.classList.add('open');
+  overlay.classList.add('show');
+  hamburger.classList.add('open');
+  hamburger.setAttribute('aria-expanded','true');
+}
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+  hamburger.classList.remove('open');
+  hamburger.setAttribute('aria-expanded','false');
+}
+hamburger.addEventListener('click', () =>
+  sidebar.classList.contains('open') ? closeSidebar() : openSidebar()
+);
+overlay.addEventListener('click', closeSidebar);
+
+/* ═══════════════════════════════════════════════════════════
+   HST RATE
+═══════════════════════════════════════════════════════════ */
+hstRateInput.addEventListener('input', () => {
+  const v = parseFloat(hstRateInput.value);
+  hstRate = (!isNaN(v) && v >= 0) ? v : 13;
+  arrowLabel.textContent = removeMode ? `− ${hstRate}% HST` : `+ ${hstRate}% HST`;
+  calculate();
+});
+
+/* ═══════════════════════════════════════════════════════════
+   MODE TOGGLE
+═══════════════════════════════════════════════════════════ */
+modeToggleBtn.addEventListener('click', () => {
+  removeMode = !removeMode;
+  applyMode();
+  calculate();
+  closeSidebar();
+});
+
+function applyMode() {
+  if (removeMode) {
+    mainArea.className         = 'remove-mode';
+    modeBadge.className        = 'mode-badge remove';
+    modeBadge.textContent      = 'Remove HST';
+    modeToggleBtn.className    = 'toggle-btn active-remove';
+    modeToggleText.textContent = 'Switch to Add HST';
+    modeIcon.textContent       = 'add_circle';
+    modeToggleBtn.setAttribute('aria-pressed','true');
+    inputLabel.textContent     = 'Enter Amount (with HST) :';
+    outputLabel.textContent    = 'Amount without HST :';
+    arrowLabel.textContent     = `− ${hstRate}% HST`;
+  } else {
+    mainArea.className         = 'add-mode';
+    modeBadge.className        = 'mode-badge add';
+    modeBadge.textContent      = 'Add HST';
+    modeToggleBtn.className    = 'toggle-btn active-add';
+    modeToggleText.textContent = 'Switch to Remove HST';
+    modeIcon.textContent       = 'remove_circle';
+    modeToggleBtn.setAttribute('aria-pressed','false');
+    inputLabel.textContent     = 'Enter Amount :';
+    outputLabel.textContent    = 'Final Amount with HST :';
+    arrowLabel.textContent     = `+ ${hstRate}% HST`;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   POS-STYLE INPUT
+   Digits accumulate as cents; decimal placed automatically.
+   Max 8 raw digits (9,999,999 cents = $99,999.99).
+   Backspace removes last digit.
+═══════════════════════════════════════════════════════════ */
+function digitsToDisplay(digits) {
+  // pad to at least 3 chars so we always have 0.XX
+  const padded = digits.padStart(3, '0');
+  const cents  = padded.slice(-2);
+  const dollars= padded.slice(0, padded.length - 2) || '0';
+  // remove leading zeros from dollar part but keep at least one digit
+  const dollarsClean = dollars.replace(/^0+/, '') || '0';
+  return dollarsClean + '.' + cents;
+}
+
+function updateAmountDisplay() {
+  if (rawDigits === '') {
+    amountInput.value = '';
+    amountInput.placeholder = '0.00';
+  } else {
+    amountInput.value = digitsToDisplay(rawDigits);
+  }
+  calculate();
+}
+
+function handleDigit(d) {
+  if (rawDigits.length >= 8) return; // max $99,999.99
+  rawDigits += d;
+  updateAmountDisplay();
+}
+
+function handleBackspace() {
+  if (rawDigits.length === 0) return;
+  rawDigits = rawDigits.slice(0, -1);
+  updateAmountDisplay();
+}
+
+// Keyboard opens ONLY when the user explicitly taps the input card area
+// (not from bubbled clicks from the zone or anywhere else below)
+amountInput.addEventListener('click', (e) => { e.stopPropagation(); openKeyboard(); });
+inputCard.addEventListener('click', (e) => { e.stopPropagation(); openKeyboard(); });
+
+// Prevent any tap/click on the zone or main area below from opening keyboard
+doubleTapZone.addEventListener('click',    (e) => e.stopPropagation());
+doubleTapZone.addEventListener('touchstart',(e) => e.stopPropagation(), { passive: true });
+arrowDivider.addEventListener('click',     (e) => e.stopPropagation());
+arrowDivider.addEventListener('touchstart',(e) => e.stopPropagation(), { passive: true });
+document.getElementById('mainArea').addEventListener('click', (e) => {
+  // blur keyboard if user taps outside input card
+  if (!inputCard.contains(e.target)) {
+    keyboardProxy.blur();
+  }
+});
+
+function openKeyboard() {
+  inputCard.classList.add('focused');
+  keyboardProxy.focus();
+}
+
+// Listen on proxy for keystrokes (hardware keyboard / software keyboard events)
+keyboardProxy.addEventListener('keydown', (e) => {
+  if (e.key >= '0' && e.key <= '9') {
+    handleDigit(e.key);
+    e.preventDefault();
+  } else if (e.key === 'Backspace') {
+    handleBackspace();
+    e.preventDefault();
+  } else if (e.key === 'Enter' || e.key === 'Escape') {
+    keyboardProxy.blur();
+  }
+});
+
+// Mobile numeric keyboard fires 'input' on the proxy — parse what was typed
+keyboardProxy.addEventListener('input', () => {
+  const val = keyboardProxy.value;
+  // extract only digits from whatever the IME/keyboard put in
+  for (const ch of val) {
+    if (ch >= '0' && ch <= '9' && rawDigits.length < 8) {
+      rawDigits += ch;
+    }
+  }
+  keyboardProxy.value = ''; // always clear proxy
+  updateAmountDisplay();
+});
+
+keyboardProxy.addEventListener('blur', () => {
+  inputCard.classList.remove('focused');
+});
+
+/* ═══════════════════════════════════════════════════════════
+   CALCULATE
+═══════════════════════════════════════════════════════════ */
+function calculate() {
+  const displayVal = amountInput.value;
+  const raw = parseFloat(displayVal);
+
+  if (!displayVal || isNaN(raw) || raw === 0 && rawDigits === '') {
+    outputAmount.textContent    = '—';
+    outputAmount.className      = 'output-amount empty';
+    outputBreakdown.textContent = '';
+    return;
+  }
+
+  let result, tax, base;
+  if (removeMode) {
+    result = raw / (1 + hstRate / 100);
+    tax    = raw - result;
+    base   = result;
+  } else {
+    tax    = raw * (hstRate / 100);
+    result = raw + tax;
+    base   = raw;
+  }
+
+  result = Math.round(result * 100) / 100;
+  tax    = Math.round(tax    * 100) / 100;
+  base   = Math.round(base   * 100) / 100;
+
+  outputAmount.className = 'output-amount';
+  void outputAmount.offsetWidth;
+  outputAmount.className  = 'output-amount flash';
+  outputAmount.textContent = '$' + result.toFixed(2);
+
+  outputBreakdown.textContent = removeMode
+    ? `$${raw.toFixed(2)} − $${tax.toFixed(2)} HST = $${result.toFixed(2)}`
+    : `$${base.toFixed(2)} + $${tax.toFixed(2)} HST = $${result.toFixed(2)}`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CLEAR
+═══════════════════════════════════════════════════════════ */
+function clearAll() {
+  rawDigits                    = '';
+  amountInput.value            = '';
+  amountInput.placeholder      = '0.00';
+  outputAmount.textContent     = '—';
+  outputAmount.className       = 'output-amount empty';
+  outputBreakdown.textContent  = '';
+}
+
+clearBtn.addEventListener('click', () => {
+  clearAll();
+  closeSidebar();
+});
+
+/* ═══════════════════════════════════════════════════════════
+   DOUBLE-TAP CLEAR ZONE
+   Only the zone element triggers clear, not the whole page.
+   Uses touchend timing to detect double-tap (≤350 ms apart).
+═══════════════════════════════════════════════════════════ */
+let lastTapTime = 0;
+let tapTimer    = null;
+
+function fireRipple(x, y) {
+  const size = 80;
+  clearRipple.style.width  = size + 'px';
+  clearRipple.style.height = size + 'px';
+  clearRipple.style.left   = (x - size / 2) + 'px';
+  clearRipple.style.top    = (y - size / 2) + 'px';
+  clearRipple.classList.remove('go');
+  void clearRipple.offsetWidth;
+  clearRipple.classList.add('go');
+}
+
+function shakeCards() {
+  [inputCard].forEach(el => {
+    el.classList.remove('shake');
+    void el.offsetWidth;
+    el.classList.add('shake');
+  });
+}
+
+doubleTapZone.addEventListener('touchend', (e) => {
+  e.preventDefault();   // prevent ghost click
+  e.stopPropagation();  // prevent bubble to mainArea / inputCard listeners
+  const now = Date.now();
+  const touch = e.changedTouches[0];
+
+  if (now - lastTapTime < 350) {
+    // Double tap!
+    clearTimeout(tapTimer);
+    lastTapTime = 0;
+    fireRipple(touch.clientX, touch.clientY);
+    shakeCards();
+    setTimeout(clearAll, 120); // slight delay so ripple is visible first
+  } else {
+    lastTapTime = now;
+    tapTimer = setTimeout(() => { lastTapTime = 0; }, 400);
+  }
+}, { passive: false });
+
+// Also support double-click for desktop testing
+doubleTapZone.addEventListener('dblclick', (e) => {
+  fireRipple(e.clientX, e.clientY);
+  shakeCards();
+  setTimeout(clearAll, 120);
+});
+
+/* Arrow divider also triggers double-tap clear */
+arrowDivider.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  const now = Date.now();
+  const touch = e.changedTouches[0];
+
+  if (now - lastTapTime < 350) {
+    clearTimeout(tapTimer);
+    lastTapTime = 0;
+    fireRipple(touch.clientX, touch.clientY);
+    shakeCards();
+    setTimeout(clearAll, 120);
+  } else {
+    lastTapTime = now;
+    tapTimer = setTimeout(() => { lastTapTime = 0; }, 400);
+  }
+}, { passive: false });
+
+arrowDivider.addEventListener('dblclick', (e) => {
+  fireRipple(e.clientX, e.clientY);
+  shakeCards();
+  setTimeout(clearAll, 120);
+});
+</script>
+</body>
+</html>
