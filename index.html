@@ -2,1053 +2,131 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width,
-               initial-scale=1.0,
-               maximum-scale=1.0,
-               user-scalable=no">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>HST Calculator</title>
-
-<!-- Material Icons -->
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
-
-<!-- Google Font -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
-html,
-body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100%;
-}
-
-body {
-    font-family: "Inter", sans-serif;
-
-    background:
-        radial-gradient(
-            circle at top,
-            #16263b 0%,
-            #0b1420 45%,
-            #070d15 100%
-        );
-
-    color: #f2f5f8;
-
-    min-height: 100vh;
-    min-height: 100dvh;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    padding: 20px;
-}
-
-
-/* =========================================
-   MAIN CARD
-========================================= */
-
-.calculator {
-    width: 100%;
-    max-width: 430px;
-
-    background: rgba(18, 30, 45, 0.94);
-
-    border: 1px solid rgba(255, 255, 255, 0.07);
-
-    border-radius: 24px;
-
-    padding: 24px;
-
-    box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.025);
-
-    animation: cardAppear 0.5s ease-out;
-}
-
-@keyframes cardAppear {
-
-    from {
-        opacity: 0;
-        transform: translateY(15px) scale(0.98);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-
-}
-
-
-/* =========================================
-   HEADER
-========================================= */
-
-.header {
-    text-align: center;
-
-    margin-bottom: 22px;
-}
-
-.header h1 {
-    margin: 0;
-
-    font-size: 23px;
-
-    font-weight: 700;
-
-    letter-spacing: -0.5px;
-
-    /* Suitable accent colour */
-    color: #72b7e8;
-
-    text-shadow:
-        0 0 20px rgba(114, 183, 232, 0.12);
-}
-
-
-/* =========================================
-   FIELD
-========================================= */
-
-.field {
-    margin-bottom: 17px;
-}
-
-label {
-    display: block;
-
-    margin-bottom: 7px;
-
-    font-size: 13px;
-
-    font-weight: 600;
-
-    color: #aeb9c6;
-
-    letter-spacing: 0.1px;
-}
-
-
-/* =========================================
-   INPUT / OUTPUT BOX
-========================================= */
-
-.input-box,
-.output-box {
-
-    width: 100%;
-
-    height: 62px;
-
-    border-radius: 15px;
-
-    display: flex;
-
-    align-items: center;
-
-    position: relative;
-
-    transition:
-        border-color 0.25s ease,
-        box-shadow 0.25s ease,
-        transform 0.2s ease;
-}
-
-
-/* =========================================
-   INPUT
-========================================= */
-
-.input-box {
-
-    background: #0c1725;
-
-    border: 1px solid #26384d;
-
-    padding: 0 17px;
-}
-
-.input-box:focus-within {
-
-    border-color: #4d8fd1;
-
-    box-shadow:
-        0 0 0 3px rgba(77, 143, 209, 0.10);
-
-    transform: translateY(-1px);
-}
-
-
-/* =========================================
-   CURRENCY SYMBOL
-========================================= */
-
-.currency {
-
-    font-size: 20px;
-
-    font-weight: 600;
-
-    color: #7f91a5;
-
-    margin-right: 9px;
-}
-
-
-/* =========================================
-   INPUT TEXT
-========================================= */
-
-input {
-
-    width: 100%;
-
-    border: none;
-
-    outline: none;
-
-    background: transparent;
-
-    color: #f5f8fb;
-
-    font-family: inherit;
-
-    font-size: 21px;
-
-    font-weight: 600;
-
-    letter-spacing: 0.2px;
-}
-
-input::placeholder {
-    color: #46576b;
-}
-
-
-/* Remove number arrows */
-
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-
-    -webkit-appearance: none;
-
-    margin: 0;
-}
-
-input[type="number"] {
-
-    appearance: textfield;
-
-    -moz-appearance: textfield;
-}
-
-
-/* =========================================
-   OUTPUT
-========================================= */
-
-.output-box {
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(41, 76, 65, 0.35),
-            rgba(17, 35, 33, 0.75)
-        );
-
-    border: 1px solid rgba(89, 156, 119, 0.25);
-
-    padding: 0 18px;
-}
-
-
-.output-value {
-
-    font-size: 23px;
-
-    font-weight: 700;
-
-    color: #a9e8bd;
-
-    letter-spacing: 0.2px;
-
-    transition:
-        opacity 0.15s ease,
-        transform 0.15s ease;
-}
-
-.output-value.updated {
-
-    animation: valueUpdate 0.22s ease;
-}
-
-@keyframes valueUpdate {
-
-    0% {
-        opacity: 0.45;
-        transform: translateY(3px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-}
-
-
-/* =========================================
-   HST BADGE
-========================================= */
-
-.hst-badge {
-
-    margin-left: auto;
-
-    font-size: 11px;
-
-    font-weight: 600;
-
-    color: #83c79b;
-
-    background: rgba(97, 180, 124, 0.10);
-
-    padding: 6px 9px;
-
-    border-radius: 8px;
-}
-
-
-/* =========================================
-   BUTTONS
-========================================= */
-
-.buttons {
-
-    display: grid;
-
-    grid-template-columns: 1fr 1fr;
-
-    gap: 12px;
-
-    margin-top: 21px;
-}
-
-
-button {
-
-    height: 54px;
-
-    border: none;
-
-    border-radius: 14px;
-
-    font-family: inherit;
-
-    font-size: 14px;
-
-    font-weight: 600;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 8px;
-
-    cursor: pointer;
-
-    transition:
-        transform 0.16s ease,
-        filter 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-button:active {
-
-    transform: scale(0.96);
-}
-
-
-/* =========================================
-   CLEAR BUTTON
-========================================= */
-
-.clear-btn {
-
-    background: rgba(214, 70, 70, 0.13);
-
-    border: 1px solid rgba(214, 70, 70, 0.28);
-
-    color: #ff8585;
-}
-
-.clear-btn:hover {
-
-    background: rgba(214, 70, 70, 0.19);
-
-    box-shadow:
-        0 6px 20px rgba(214, 70, 70, 0.08);
-}
-
-
-/* =========================================
-   COPY BUTTON
-========================================= */
-
-.copy-btn {
-
-    background: rgba(102, 188, 126, 0.14);
-
-    border: 1px solid rgba(102, 188, 126, 0.28);
-
-    color: #9de4b0;
-}
-
-.copy-btn:hover {
-
-    background: rgba(102, 188, 126, 0.20);
-
-    box-shadow:
-        0 6px 20px rgba(102, 188, 126, 0.08);
-}
-
-
-/* =========================================
-   MATERIAL ICONS
-========================================= */
-
-.material-icons {
-
-    font-size: 20px;
-}
-
-
-/* =========================================
-   MESSAGE
-========================================= */
-
-.message {
-
-    height: 22px;
-
-    margin-top: 10px;
-
-    text-align: center;
-
-    font-size: 12px;
-
-    font-weight: 600;
-
-    opacity: 0;
-
-    transform: translateY(-4px);
-
-    transition:
-        opacity 0.25s ease,
-        transform 0.25s ease;
-
-    pointer-events: none;
-}
-
-.message.show {
-
-    opacity: 1;
-
-    transform: translateY(0);
-}
-
-.message.copied {
-
-    color: #91dfaa;
-}
-
-.message.cleared {
-
-    color: #ff8585;
-}
-
-
-/* =========================================
-   MOBILE
-========================================= */
-
-@media (max-width: 600px) {
-
-    body {
-
-        /*
-           Move calculator toward the top
-           on mobile so the keyboard has
-           less chance of covering it.
-        */
-
-        align-items: flex-start;
-
-        padding:
-            max(18px, env(safe-area-inset-top))
-            14px
-            20px;
-
-    }
-
-    .calculator {
-
-        margin-top: 5px;
-
-        padding: 21px;
-
-        border-radius: 21px;
-
-    }
-
-    .header {
-
-        margin-bottom: 19px;
-
-    }
-
-    .header h1 {
-
-        font-size: 22px;
-
-    }
-
-}
-
-
-/* =========================================
-   SMALL MOBILE
-========================================= */
-
-@media (max-width: 380px) {
-
-    body {
-
-        padding-left: 12px;
-        padding-right: 12px;
-
-    }
-
-    .calculator {
-
-        padding: 19px;
-
-        border-radius: 20px;
-
-    }
-
-    .header {
-
-        margin-bottom: 18px;
-
-    }
-
-    .header h1 {
-
-        font-size: 21px;
-
-    }
-
-    .input-box,
-    .output-box {
-
-        height: 58px;
-
-    }
-
-    input {
-
-        font-size: 20px;
-
-    }
-
-    .output-value {
-
-        font-size: 21px;
-
-    }
-
-    button {
-
-        height: 51px;
-
-    }
-
-}
-
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;width:100%;min-height:100%}
+body{font-family:"Inter",sans-serif;background:radial-gradient(circle at top,#16263b 0%,#0b1420 45%,#070d15 100%);color:#f2f5f8;min-height:100vh;min-height:100dvh;display:flex;justify-content:center;align-items:center;padding:20px}
+.calculator{width:100%;max-width:430px;background:rgba(18,30,45,.94);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.025);animation:cardAppear .5s ease-out}
+@keyframes cardAppear{from{opacity:0;transform:translateY(15px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.header{position:relative;text-align:center;margin-bottom:22px;min-height:28px;display:flex;align-items:center;justify-content:center}
+.header h1{margin:0;font-size:23px;font-weight:700;letter-spacing:-.5px;color:#72b7e8;text-shadow:0 0 20px rgba(114,183,232,.12)}
+.menu-toggle{position:absolute;right:0;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:12px;background:rgba(77,143,209,.12);border:1px solid rgba(77,143,209,.22);color:#9bcaf1}
+.menu-toggle:hover{filter:brightness(1.12)}
+.field{margin-bottom:17px}
+label{display:block;margin-bottom:7px;font-size:13px;font-weight:600;color:#aeb9c6;letter-spacing:.1px}
+.input-box,.output-box{width:100%;height:62px;border-radius:15px;display:flex;align-items:center;position:relative;transition:border-color .25s ease,box-shadow .25s ease,transform .2s ease}
+.input-box{background:#0c1725;border:1px solid #26384d;padding:0 17px}
+.input-box:focus-within{border-color:#4d8fd1;box-shadow:0 0 0 3px rgba(77,143,209,.10);transform:translateY(-1px)}
+.currency{font-size:20px;font-weight:600;color:#7f91a5;margin-right:9px}
+input{width:100%;border:none;outline:none;background:transparent;color:#f5f8fb;font-family:inherit;font-size:21px;font-weight:600;letter-spacing:.2px}
+input::placeholder{color:#46576b}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.output-box{background:linear-gradient(135deg,rgba(41,76,65,.35),rgba(17,35,33,.75));border:1px solid rgba(89,156,119,.25);padding:0 18px}
+.output-value{font-size:23px;font-weight:700;color:#a9e8bd;letter-spacing:.2px;transition:opacity .15s ease,transform .15s ease}
+.output-value.updated{animation:valueUpdate .22s ease}
+@keyframes valueUpdate{0%{opacity:.45;transform:translateY(3px)}100%{opacity:1;transform:translateY(0)}}
+.hst-badge{margin-left:auto;font-size:11px;font-weight:600;color:#83c79b;background:rgba(97,180,124,.10);padding:6px 9px;border-radius:8px;white-space:nowrap}
+.buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:21px}
+button{height:54px;border:none;border-radius:14px;font-family:inherit;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:transform .16s ease,filter .2s ease,box-shadow .2s ease}
+button:active{transform:scale(.96)}
+.clear-btn{background:rgba(214,70,70,.13);border:1px solid rgba(214,70,70,.28);color:#ff8585}
+.copy-btn{background:rgba(102,188,126,.14);border:1px solid rgba(102,188,126,.28);color:#9de4b0}
+.clear-btn:hover{background:rgba(214,70,70,.19);box-shadow:0 6px 20px rgba(214,70,70,.08)}
+.copy-btn:hover{background:rgba(102,188,126,.20);box-shadow:0 6px 20px rgba(102,188,126,.08)}
+.material-icons{font-size:20px}
+.message{height:22px;margin-top:10px;text-align:center;font-size:12px;font-weight:600;opacity:0;transform:translateY(-4px);transition:opacity .25s ease,transform .25s ease;pointer-events:none}
+.message.show{opacity:1;transform:translateY(0)}.message.copied{color:#91dfaa}.message.cleared{color:#ff8585}
+.menu-overlay{position:fixed;inset:0;background:rgba(0,0,0,.48);opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s ease;z-index:20}
+.menu-overlay.show{opacity:1;visibility:visible}
+.side-menu{position:fixed;top:0;right:0;width:min(340px,88vw);height:100dvh;background:#0d1d31;border-left:1px solid rgba(255,255,255,.08);box-shadow:-20px 0 50px rgba(0,0,0,.35);transform:translateX(100%);transition:transform .34s cubic-bezier(.22,.8,.24,1);z-index:21;overflow:hidden}
+.side-menu.open{transform:translateX(0)}
+.menu-page{position:absolute;inset:0;padding:22px;transition:transform .32s cubic-bezier(.22,.8,.24,1)}
+.menu-main{transform:translateX(0)}.menu-settings{transform:translateX(100%)}.side-menu.settings-open .menu-main{transform:translateX(-100%)}.side-menu.settings-open .menu-settings{transform:translateX(0)}
+.menu-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.menu-title{font-size:19px;font-weight:700;color:#72b7e8}.menu-close,.back-btn{width:42px;height:42px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#c8d5e2;border-radius:12px}
+.menu-option{width:100%;height:58px;justify-content:flex-start;padding:0 16px;background:#102640;border:1px solid rgba(255,255,255,.07);color:#e8eef5;border-radius:15px;margin-bottom:12px}
+.menu-option:hover{filter:brightness(1.1)}.menu-option.active{border-color:rgba(114,183,232,.4);background:rgba(77,143,209,.13);color:#9bcaf1}
+.menu-option .material-icons{color:#83b9e7}
+.rate-field{margin-top:6px}.rate-box{padding:0 17px}.rate-symbol{font-size:19px;font-weight:600;color:#7f91a5;margin-left:9px}
+.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.preset-btn{height:44px;background:#102640;border:1px solid rgba(255,255,255,.08);color:#b9c9d9;border-radius:12px}.preset-btn.active{background:rgba(77,143,209,.16);border-color:rgba(114,183,232,.4);color:#9bcaf1}
+@media(max-width:600px){body{align-items:flex-start;padding:max(18px,env(safe-area-inset-top)) 14px 20px}.calculator{margin-top:5px;padding:21px;border-radius:21px}.header{margin-bottom:19px}.header h1{font-size:22px}}
+@media(max-width:380px){body{padding-left:12px;padding-right:12px}.calculator{padding:19px;border-radius:20px}.input-box,.output-box{height:58px}input{font-size:20px}.output-value{font-size:21px}button{height:51px}}
 </style>
 </head>
-
-
 <body>
-
+<div class="menu-overlay" id="menuOverlay"></div>
+<aside class="side-menu" id="sideMenu" aria-hidden="true">
+  <div class="menu-page menu-main">
+    <div class="menu-top"><div class="menu-title">Menu</div><button class="menu-close" id="menuClose" type="button" aria-label="Close menu"><span class="material-icons">close</span></button></div>
+    <button class="menu-option" id="reverseOption" type="button"><span class="material-icons">swap_horiz</span><span>Reverse HST Calculator</span></button>
+    <button class="menu-option" id="rateOption" type="button"><span class="material-icons">tune</span><span>Change HST Rate</span></button>
+  </div>
+  <div class="menu-page menu-settings">
+    <div class="menu-top"><button class="back-btn" id="backBtn" type="button" aria-label="Back"><span class="material-icons">arrow_back</span></button><div class="menu-title">Change HST Rate</div><div style="width:42px"></div></div>
+    <div class="rate-field"><label for="rateInput">HST Rate :</label><div class="input-box rate-box"><input id="rateInput" type="text" inputmode="decimal" value="13" autocomplete="off"><span class="rate-symbol">%</span></div></div>
+    <div class="presets" id="presets">
+      <button class="preset-btn" data-rate="5" type="button">5%</button><button class="preset-btn" data-rate="10" type="button">10%</button><button class="preset-btn" data-rate="13" type="button">13%</button><button class="preset-btn" data-rate="18" type="button">18%</button><button class="preset-btn" data-rate="28" type="button">28%</button>
+    </div>
+  </div>
+</aside>
 
 <div class="calculator">
-
-
-    <!-- TITLE -->
-
-    <div class="header">
-
-        <h1>HST Calculator</h1>
-
-    </div>
-
-
-    <!-- INPUT -->
-
-    <div class="field">
-
-        <label for="amount">
-            Enter Amount :
-        </label>
-
-        <div class="input-box">
-
-            <span class="currency">$</span>
-
-            <input
-                id="amount"
-                type="text"
-                inputmode="decimal"
-                placeholder="0.00"
-                autocomplete="off"
-                autofocus
-            >
-
-        </div>
-
-    </div>
-
-
-    <!-- OUTPUT -->
-
-    <div class="field">
-
-        <label>
-            Final Amount with HST :
-        </label>
-
-        <div class="output-box">
-
-            <span class="currency">$</span>
-
-            <span
-                id="output"
-                class="output-value">
-                0.00
-            </span>
-
-            <span class="hst-badge">
-                HST 13%
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <!-- BUTTONS -->
-
-    <div class="buttons">
-
-        <button
-            id="clearBtn"
-            class="clear-btn"
-            type="button">
-
-            <span class="material-icons">
-                delete_outline
-            </span>
-
-            Clear
-
-        </button>
-
-
-        <button
-            id="copyBtn"
-            class="copy-btn"
-            type="button">
-
-            <span class="material-icons">
-                content_copy
-            </span>
-
-            Copy
-
-        </button>
-
-    </div>
-
-
-    <!-- STATUS MESSAGE -->
-
-    <div
-        id="message"
-        class="message">
-    </div>
-
-
+  <div class="header"><h1 id="title">HST Calculator</h1><button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu"><span class="material-icons">menu</span></button></div>
+  <div class="field"><label id="inputLabel" for="amount">Enter Amount :</label><div class="input-box"><span class="currency">$</span><input id="amount" type="text" inputmode="decimal" placeholder="0.00" autocomplete="off" autofocus></div></div>
+  <div class="field"><label id="outputLabel">Final Amount with HST :</label><div class="output-box"><span class="currency">$</span><span id="output" class="output-value">0.00</span><span class="hst-badge" id="hstBadge">HST 13%</span></div></div>
+  <div class="buttons"><button id="clearBtn" class="clear-btn" type="button"><span class="material-icons">delete_outline</span>Clear</button><button id="copyBtn" class="copy-btn" type="button"><span class="material-icons">content_copy</span>Copy</button></div>
+  <div id="message" class="message"></div>
 </div>
 
-
 <script>
-
-
-/* =========================================
-   ELEMENTS
-========================================= */
-
-const amountInput = document.getElementById("amount");
-
-const output = document.getElementById("output");
-
-const clearBtn = document.getElementById("clearBtn");
-
-const copyBtn = document.getElementById("copyBtn");
-
-const message = document.getElementById("message");
-
-let messageTimer;
-
-
-/* =========================================
-   INPUT LIMIT
-   Maximum 12 digits.
-
-   Decimal point is NOT counted as a digit.
-   Example:
-
-   123456789012
-   123456789012.50
-
-   are both allowed.
-
-   Anything beyond 12 digits is discarded.
-========================================= */
-
-amountInput.addEventListener("input", function () {
-
-    let value = this.value;
-
-
-    /* Allow only numbers and decimal point */
-
-    value = value.replace(/[^\d.]/g, "");
-
-
-    /* Keep only the first decimal point */
-
-    const firstDot = value.indexOf(".");
-
-    if (firstDot !== -1) {
-
-        value =
-            value.substring(0, firstDot + 1) +
-            value.substring(firstDot + 1)
-                .replace(/\./g, "");
-
-    }
-
-
-    /* Separate whole and decimal portions */
-
-    let parts = value.split(".");
-
-    let whole = parts[0] || "";
-
-    let decimal = parts[1] || "";
-
-
-    /*
-       Maximum 12 numeric digits
-       across the entire input.
-    */
-
-    const totalDigits =
-        whole.length + decimal.length;
-
-
-    if (totalDigits > 12) {
-
-        const allowedDecimalDigits =
-            Math.max(0, 12 - whole.length);
-
-        decimal =
-            decimal.substring(
-                0,
-                allowedDecimalDigits
-            );
-
-    }
-
-
-    /*
-       Rebuild value
-    */
-
-    if (value.includes(".")) {
-
-        value = whole + "." + decimal;
-
-    } else {
-
-        value = whole;
-
-    }
-
-
-    /*
-       If whole portion itself exceeds
-       12 digits, keep only first 12.
-    */
-
-    if (whole.length > 12) {
-
-        value = whole.substring(0, 12);
-
-    }
-
-
-    this.value = value;
-
-
-    calculateHST();
-
-});
-
-
-/* =========================================
-   CALCULATE HST
-========================================= */
-
-function calculateHST() {
-
-    const rawValue =
-        amountInput.value.trim();
-
-
-    if (rawValue === "") {
-
-        output.textContent = "0.00";
-
-        return;
-
-    }
-
-
-    const amount =
-        parseFloat(rawValue);
-
-
-    if (isNaN(amount)) {
-
-        output.textContent = "0.00";
-
-        return;
-
-    }
-
-
-    /*
-       13% HST
-
-       Amount × 1.13
-    */
-
-    const finalAmount =
-        amount * 1.13;
-
-
-    /*
-       Always exactly 2 decimals
-    */
-
-    output.textContent =
-        finalAmount.toFixed(2);
-
-
-    /*
-       Animation
-    */
-
-    output.classList.remove("updated");
-
-    void output.offsetWidth;
-
-    output.classList.add("updated");
-
+const amountInput=document.getElementById("amount"),output=document.getElementById("output"),clearBtn=document.getElementById("clearBtn"),copyBtn=document.getElementById("copyBtn"),message=document.getElementById("message");
+const title=document.getElementById("title"),inputLabel=document.getElementById("inputLabel"),outputLabel=document.getElementById("outputLabel"),hstBadge=document.getElementById("hstBadge");
+const sideMenu=document.getElementById("sideMenu"),menuOverlay=document.getElementById("menuOverlay"),menuToggle=document.getElementById("menuToggle"),menuClose=document.getElementById("menuClose"),reverseOption=document.getElementById("reverseOption"),rateOption=document.getElementById("rateOption"),backBtn=document.getElementById("backBtn"),rateInput=document.getElementById("rateInput"),presets=document.getElementById("presets");
+let hstRate=13,isReverse=false,messageTimer;
+
+function formatRate(v){return Number.isInteger(v)?String(v):String(Number(v.toFixed(4)));}
+function updatePresetState(){document.querySelectorAll(".preset-btn").forEach(b=>b.classList.toggle("active",Number(b.dataset.rate)===hstRate));}
+function updateRateDisplay(){hstBadge.textContent="HST "+formatRate(hstRate)+"%";rateInput.value=formatRate(hstRate);updatePresetState();}
+function calculateHST(){
+ const raw=amountInput.value.trim(); if(raw===""||raw==="."){output.textContent="0.00";return;}
+ const amount=parseFloat(raw); if(!Number.isFinite(amount)){output.textContent="0.00";return;}
+ const result=isReverse?amount/(1+hstRate/100):amount*(1+hstRate/100);
+ output.textContent=result.toFixed(2);output.classList.remove("updated");void output.offsetWidth;output.classList.add("updated");
 }
-
-
-/* =========================================
-   MESSAGE
-========================================= */
-
-function showMessage(text, type) {
-
-    clearTimeout(messageTimer);
-
-
-    message.textContent = text;
-
-    message.className =
-        "message " +
-        type +
-        " show";
-
-
-    messageTimer = setTimeout(() => {
-
-        message.classList.remove("show");
-
-    }, 1000);
-
+function sanitizeAmountInput(el,maxDigits=12){
+ let value=el.value.replace(/[^\d.]/g,"");const firstDot=value.indexOf(".");if(firstDot!==-1)value=value.substring(0,firstDot+1)+value.substring(firstDot+1).replace(/\./g,"");
+ let [whole="",decimal=""]=value.split("."); if(whole.length>maxDigits){whole=whole.substring(0,maxDigits);decimal="";} else {decimal=decimal.substring(0,Math.max(0,maxDigits-whole.length));}
+ el.value=value.includes(".")?whole+"."+decimal:whole;
 }
-
-
-/* =========================================
-   CLEAR
-========================================= */
-
-clearBtn.addEventListener("click", () => {
-
-    amountInput.value = "";
-
-    output.textContent = "0.00";
-
-    amountInput.focus();
-
-    showMessage(
-        "Cleared",
-        "cleared"
-    );
-
+amountInput.addEventListener("input",()=>{sanitizeAmountInput(amountInput);calculateHST();});
+rateInput.addEventListener("input",()=>{
+ let v=rateInput.value.replace(/[^\d.]/g,"");const dot=v.indexOf(".");if(dot!==-1)v=v.substring(0,dot+1)+v.substring(dot+1).replace(/\./g,"");rateInput.value=v;
+ const n=parseFloat(v);if(Number.isFinite(n)&&n>=0&&n<=10000){hstRate=n;updateRateDisplay();calculateHST();}
 });
-
-
-/* =========================================
-   COPY
-========================================= */
-
-copyBtn.addEventListener("click", async () => {
-
-    /*
-       Don't copy if there is no amount.
-    */
-
-    if (
-        amountInput.value.trim() === "" ||
-        output.textContent === "0.00"
-    ) {
-
-        amountInput.focus();
-
-        return;
-
-    }
-
-
-    /*
-       IMPORTANT:
-       Only the number is copied.
-
-       Example:
-       Display → $565.00
-       Clipboard → 565.00
-    */
-
-    const value =
-        output.textContent;
-
-
-    try {
-
-        await navigator.clipboard.writeText(value);
-
-        showMessage(
-            "Copied",
-            "copied"
-        );
-
-    }
-
-    catch (error) {
-
-        /*
-           Clipboard fallback
-           for older mobile browsers.
-        */
-
-        const temp =
-            document.createElement("textarea");
-
-        temp.value = value;
-
-        temp.style.position = "fixed";
-
-        temp.style.opacity = "0";
-
-        document.body.appendChild(temp);
-
-        temp.select();
-
-        document.execCommand("copy");
-
-        document.body.removeChild(temp);
-
-
-        showMessage(
-            "Copied",
-            "copied"
-        );
-
-    }
-
+rateInput.addEventListener("blur",()=>{if(rateInput.value.trim()===""||!Number.isFinite(parseFloat(rateInput.value))){rateInput.value=formatRate(hstRate);} });
+presets.addEventListener("click",e=>{const b=e.target.closest(".preset-btn");if(!b)return;hstRate=Number(b.dataset.rate);updateRateDisplay();calculateHST();});
+function openMenu(){sideMenu.classList.add("open");menuOverlay.classList.add("show");sideMenu.setAttribute("aria-hidden","false");}
+function closeMenu(){sideMenu.classList.remove("open");menuOverlay.classList.remove("show");sideMenu.classList.remove("settings-open");sideMenu.setAttribute("aria-hidden","true");}
+menuToggle.addEventListener("click",openMenu);menuClose.addEventListener("click",closeMenu);menuOverlay.addEventListener("click",closeMenu);
+rateOption.addEventListener("click",()=>{sideMenu.classList.add("settings-open");setTimeout(()=>rateInput.focus(),250);});backBtn.addEventListener("click",()=>sideMenu.classList.remove("settings-open"));
+reverseOption.addEventListener("click",()=>{
+ isReverse=!isReverse;
+ title.textContent=isReverse?"Reverse HST Calculator":"HST Calculator";
+ inputLabel.textContent=isReverse?"Enter Amount with HST :":"Enter Amount :";
+ outputLabel.textContent=isReverse?"Amount before HST applied :":"Final Amount with HST :";
+ reverseOption.classList.toggle("active",isReverse);
+ calculateHST();closeMenu();amountInput.focus();
 });
-
-
-/* =========================================
-   ENTER KEY
-========================================= */
-
-amountInput.addEventListener(
-    "keydown",
-    (event) => {
-
-        if (event.key === "Enter") {
-
-            event.preventDefault();
-
-            amountInput.blur();
-
-        }
-
-    }
-);
-
-
+function showMessage(text,type){clearTimeout(messageTimer);message.textContent=text;message.className="message "+type+" show";messageTimer=setTimeout(()=>message.classList.remove("show"),1000);}
+clearBtn.addEventListener("click",()=>{amountInput.value="";output.textContent="0.00";amountInput.focus();showMessage("Cleared","cleared");});
+copyBtn.addEventListener("click",async()=>{if(amountInput.value.trim()===""||output.textContent==="0.00"){amountInput.focus();return;}const value=output.textContent;try{await navigator.clipboard.writeText(value);}catch(e){const temp=document.createElement("textarea");temp.value=value;temp.style.position="fixed";temp.style.opacity="0";document.body.appendChild(temp);temp.select();document.execCommand("copy");document.body.removeChild(temp);}showMessage("Copied","copied");});
+amountInput.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();amountInput.blur();}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sideMenu.classList.contains("open"))closeMenu();});
+updateRateDisplay();
 </script>
-
 </body>
 </html>
